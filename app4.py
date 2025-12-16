@@ -1,15 +1,61 @@
 import streamlit as st
 import numpy as np
 import pickle
+import os
+import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
-#Load the LSTM Model
-model=load_model("NextWordPredictionModelLSTM.keras")
+@st.cache_resource
+def load_model_safely():
+    # Prefer modern format
+    if os.path.exists("NextWordPredictionModelLSTM.keras"):
+        try:
+            model = tf.keras.models.load_model("NextWordPredictionModelLSTM.keras")
+            return model
+        except Exception as e:
+            st.warning(f"Failed to load model.keras: {e}")
 
-#3 Laod the tokenizer
-with open('WordTokenizer.pkl','rb') as handle:
-    tokenizer=pickle.load(handle)
+    # Legacy fallback
+    if os.path.exists("NextWordPredictionModelLSTM.h5"):
+        try:
+            model = tf.keras.models.load_model("NextWordPredictionModelLSTM.h5", compile=False)
+            model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
+            return model
+        except Exception as e:
+            st.error(f"Failed to load NextWordPredictionModelLSTM.h5: {e}")
+
+    raise FileNotFoundError("No model file found. Please include NextWordPredictionModelLSTM.keras or NextWordPredictionModelLSTM.h5 in the repository.")
+
+@st.cache_resource
+def load_pickle(path):
+    with open(path, "rb") as f:
+        return pickle.load(f)
+    
+# -----------------------------
+# LOAD ARTIFACTS
+# -----------------------------
+
+try:
+    model = load_model_safely()
+except Exception as e:
+    st.stop()
+
+try:
+    tokenizer = load_pickle("WordTokenizer.pkl")
+except FileNotFoundError as e:
+    st.error(f"Missing artifact: {e}")
+    st.stop()
+except Exception as e:
+    st.error(f"Failed to load artifacts: {e}")
+    st.stop()
+
+# #Load the LSTM Model
+# model=load_model("NextWordPredictionModelLSTM.keras")
+
+# #3 Laod the tokenizer
+# with open('WordTokenizer.pkl','rb') as handle:
+#     tokenizer=pickle.load(handle)
 
 
 # Function for Prediction
