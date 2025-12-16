@@ -5,4 +5,5 @@
 # INSTALLING REQUIREMENTS : pip install -r requirements.txt
                             pip install -r 4_LSTM-RNN-NextWordPrediction-Project\requirements.txt
                             
-# DEPLOYED AT : 
+# DEPLOYED AT : https://lstm-rnn-next-word-prediction-problem-b4klc7amngvaxh7pgquylg.streamlit.app/
+                https://lstm-rnn-next-word-prediction-problem-b4klc7amngvaxh7pgquylg.streamlit.app/
